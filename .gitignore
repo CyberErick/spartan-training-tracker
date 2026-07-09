@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.tools/
+dev-dist/
+.DS_Store
