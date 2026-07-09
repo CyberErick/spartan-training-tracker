@@ -1,5 +1,7 @@
 # Spartan Training Tracker
 
+**[Live demo →](https://cybererick.github.io/spartan-training-tracker/)**
+
 A training log built as an installable Progressive Web App (PWA) for a 6-day hypertrophy/athletic split, structured around an 11-week progression block (accumulation → full recovery week → intensification → taper → race week).
 
 Built with React + Vite, no backend — all data is logged and stored locally in the browser (`localStorage`), so it works offline once installed.
