@@ -4,6 +4,8 @@ A training log built as an installable Progressive Web App (PWA) for a 6-day hyp
 
 Built with React + Vite, no backend — all data is logged and stored locally in the browser (`localStorage`), so it works offline once installed.
 
+![Spartan Training Tracker screenshot](docs/screenshot.png)
+
 ## Features
 
 - **11-week periodized program** — accumulation, a full deload/recovery week, intensification, and taper phases, each with its own RIR (Reps In Reserve) targets and volume guidance
