@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Save, Download, ChevronDown, ChevronUp,
-  Shield, Leaf, Flame, Plus, X, Check, Info, History, ListChecks
+  Shield, Leaf, Flame, Plus, X, Check, Info, History, ListChecks, Pencil
 } from "lucide-react";
 
 /* ============================== DATA ============================== */
@@ -40,7 +40,7 @@ const CORE_ROUTINE_NOTE = "Done fresh, right after warm-up, before the main lift
 
 const NECK_CARE_LINE = "Neck care routine (see Neck Health Protocol) — 3–5 min";
 
-const ex = (o) => ({ sets: "3", reps: "10", repUnit: "reps", load: "", loadUnit: "lb", rest: "60", notes: "", tag: null, superset: null, isBackSafety: false, effortType: "rir", optional: false, weekParity: null, ...o });
+const ex = (o) => ({ sets: "3", reps: "10", repUnit: "reps", load: "", loadUnit: "lb", rest: "60", notes: "", tag: null, superset: null, isBackSafety: false, effortType: "rir", optional: false, weekParity: null, unilateral: false, ...o });
 
 function weekParityOf(week) {
   return week % 2 === 1 ? "odd" : "even";
@@ -53,10 +53,10 @@ const PROGRAM = {
     main: [
       ex({ id: "d1-1", name: "Flat Bench Press", sets: "4", reps: "5–6", load: "225", rest: "90", isMain: true, superset: "A", weekParity: "odd", notes: "Heavy compound — your anchor lift on odd weeks (1, 3, 7, 9, 11). Alternates with Incline DB Press on even weeks." }),
       ex({ id: "d1-1b", name: "Incline DB Press", sets: "4", reps: "5–6", load: "", rest: "90", isMain: true, superset: "A", weekParity: "even", notes: "Alternate anchor lift on even weeks (2, 4, 6, 8, 10). Incline + dumbbells allow a bit more stretch at the bottom than a barbell bench does." }),
-      ex({ id: "d1-2", name: "Champagne Raises (Incline Y-Raise)", sets: "4", reps: "~10", load: "30", loadUnit: "lb/arm", rest: "60", superset: "A", notes: "Superset with whichever press is on this week — lower traps / rear delts." }),
+      ex({ id: "d1-2", name: "Champagne Raises (Incline Y-Raise)", sets: "4", reps: "~10", load: "30", loadUnit: "lb/arm", rest: "60", superset: "A", unilateral: true, notes: "Superset with whichever press is on this week — lower traps / rear delts." }),
       ex({ id: "d1-3", name: "Pec-Dec (Butterfly)", sets: "3", reps: "10–12", load: "165", rest: "60", notes: "1 sec hold at peak squeeze, focus on scapular retraction." }),
       ex({ id: "d1-4", name: "Lateral Raise", sets: "4", reps: "12–15", load: "20", rest: "60", tag: "length", notes: "Sets 1–2: standard DB. Sets 3–4: Lean-Away Cable Lateral Raise, ~30–40% lighter." }),
-      ex({ id: "d1-5", name: "External Lateral Rotation", sets: "4", reps: "12–15", load: "7", loadUnit: "lb/arm", rest: "60", notes: "Rotator cuff health." }),
+      ex({ id: "d1-5", name: "External Lateral Rotation", sets: "4", reps: "12–15", load: "7", loadUnit: "lb/arm", rest: "60", unilateral: true, notes: "Rotator cuff health." }),
       ex({ id: "d1-6", name: "Overhead Cable/DB Tricep Extension", sets: "3–4", reps: "failure", load: "", rest: "60", tag: "length", weekParity: "odd", notes: "Odd weeks — loads the tricep long head at full stretch. Alternates with Tricep Pushdown on even weeks." }),
       ex({ id: "d1-6b", name: "Tricep Pushdown", sets: "3–4", reps: "failure", load: "", rest: "60", weekParity: "even", notes: "Even weeks — standard shortened-position tricep work. Alternates with Overhead Extension on odd weeks." }),
     ],
@@ -70,9 +70,9 @@ const PROGRAM = {
       ex({ id: "d2-1", name: "Weighted Back Extension", sets: "4", reps: "10", load: "45", loadUnit: "lb plate", rest: "75–90", isBackSafety: true, notes: "Heavy/loaded spinal extension. Control the lockout." }),
       ex({ id: "d2-2", name: "Lat Pulldown", sets: "4", reps: "10", load: "80% max", rest: "—", superset: "B", tag: "length", notes: "Superset, part 1. Add a 1–2 sec pause at full stretch (top) before pulling." }),
       ex({ id: "d2-3", name: "Reverse Grip Pulldown", sets: "4", reps: "10", load: "100", rest: "60", superset: "B", notes: "Superset, part 2 — different lat angle." }),
-      ex({ id: "d2-4", name: "ISO-Lateral Row (neutral grip)", sets: "4", reps: "10", load: "135 (80%)", loadUnit: "lb/arm", rest: "60", notes: "Back thickness. If gassed late, trim a set here first." }),
+      ex({ id: "d2-4", name: "ISO-Lateral Row (neutral grip)", sets: "4", reps: "10", load: "135 (80%)", loadUnit: "lb/arm", rest: "60", unilateral: true, notes: "Back thickness. If gassed late, trim a set here first." }),
       ex({ id: "d2-5", name: "Face Pull", sets: "4", reps: "12–15", load: "light", rest: "60", notes: "Rear delt / scap health. If gassed late, trim a set here first." }),
-      ex({ id: "d2-6", name: "Internal Lateral Rotation", sets: "3", reps: "12–15", load: "light", rest: "60", notes: "Arm at 90°, stay mindful of scapular retraction." }),
+      ex({ id: "d2-6", name: "Internal Lateral Rotation", sets: "3", reps: "12–15", load: "light", loadUnit: "lb/arm", rest: "60", unilateral: true, notes: "Arm at 90°, stay mindful of scapular retraction." }),
       ex({ id: "d2-7", name: "Incline DB Curl", sets: "4", reps: "failure", load: "", rest: "75–90", tag: "length", notes: "Swapped from Cable Bicep Curl. Never cut this for time — nothing else in the week hits it." }),
       ex({ id: "d2-8", name: "Reverse Curl (brachioradialis)", sets: "4", reps: "failure", load: "", rest: "75–90", notes: "To-failure work — rest-cap exception. Never cut this for time either." }),
     ],
@@ -89,8 +89,8 @@ const PROGRAM = {
       ex({ id: "d3-3", name: "Romanian Deadlift (RDL)", sets: "4", reps: "8–10", load: "moderate–heavy", rest: "75–90", isBackSafety: true, tag: "length", notes: "Add a 1–2 sec pause at your deepest comfortable, back-safe stretch." }),
       ex({ id: "d3-4", name: "Hack Squat (elevated heel)", sets: "3", reps: "10", load: "260", rest: "75–90", notes: "Heavy compound — rest-cap exception." }),
       ex({ id: "d3-5", name: "Weighted Hip Thrust Machine", sets: "4", reps: "10", load: "3×45 plates/side", rest: "60", notes: "Glute focus." }),
-      ex({ id: "d3-6", name: "Single-Leg Seated Leg Curl", sets: "4", reps: "10", load: "55", rest: "60", notes: "Unilateral hamstring finisher." }),
-      ex({ id: "d3-7", name: "Rear-Foot-Elevated (Bulgarian) Split Squat", sets: "3", reps: "8–10/leg", load: "light–moderate DB", rest: "60", tag: "length", notes: "Replaces the Single-Leg Leg Extension finisher." }),
+      ex({ id: "d3-6", name: "Single-Leg Seated Leg Curl", sets: "4", reps: "10", load: "55", rest: "60", unilateral: true, notes: "Unilateral hamstring finisher." }),
+      ex({ id: "d3-7", name: "Rear-Foot-Elevated (Bulgarian) Split Squat", sets: "3", reps: "8–10/leg", load: "light–moderate DB", rest: "60", tag: "length", unilateral: true, notes: "Replaces the Single-Leg Leg Extension finisher." }),
     ],
     finisher: null,
     stretch: ["Standing quad stretch — 20–30 sec ×2 each side", "Standing/seated hamstring stretch — 20–30 sec ×2 each side", "Figure-4 glute stretch — 20–30 sec ×2 each side", "Couch stretch (hip flexor) — 30–45 sec each side", "Calf stretch against wall — 20–30 sec ×2 each side", NECK_CARE_LINE],
@@ -99,9 +99,9 @@ const PROGRAM = {
     warmup: ["Jump rope or row machine — 5 min", "Band pull-aparts — 20", "Arm circles — 20 each direction", "Wall push-up taps — 10", "World's Greatest Stretch — 5 each side"],
     main: [
       ex({ id: "d4-1", name: "Plyo Push-Ups (or med ball chest pass)", sets: "4", reps: "6–8", load: "BW", rest: "30–45", effortType: "quality", notes: "Explosive intent, full reset between reps." }),
-      ex({ id: "d4-2", name: "Landmine Press (single arm)", sets: "3", reps: "8/side", load: "moderate", rest: "30–45", notes: "Athletic pressing pattern, anti-rotation core demand." }),
+      ex({ id: "d4-2", name: "Landmine Press (single arm)", sets: "3", reps: "8/side", load: "moderate", rest: "30–45", unilateral: true, notes: "Athletic pressing pattern, anti-rotation core demand." }),
       ex({ id: "d4-3", name: "Isometric Bench Press Pause (mid-range)", sets: "3", reps: "30–45", repUnit: "sec", load: "light–moderate", rest: "30–45", notes: "Hold time increased — builds positional strength under tension." }),
-      ex({ id: "d4-4", name: "Single-Arm DB Push Press", sets: "3", reps: "6/side", load: "moderate", rest: "30–45", effortType: "quality", notes: "Leg drive + press, full-body athletic power." }),
+      ex({ id: "d4-4", name: "Single-Arm DB Push Press", sets: "3", reps: "6/side", load: "moderate", rest: "30–45", effortType: "quality", unilateral: true, notes: "Leg drive + press, full-body athletic power." }),
       ex({ id: "d4-5", name: "Shadow Boxing Combinations (jab-cross-hook-uppercut)", sets: "4", reps: "1 min rounds", repUnit: "sec", load: "BW", rest: "30–45", effortType: "quality", notes: "Rotational hand speed and power; pairs with landmine press's anti-rotation demand." }),
       ex({ id: "d4-6", name: "Plank-to-Push-Up / Plank Hold", sets: "3", reps: "45–60", repUnit: "sec", load: "BW", rest: "30–45", tag: "length", notes: "Hold time increased. Sets 1–2: as programmed. Set 3: swap to a Bottom-of-Push-Up Isometric Hold for end-range stability." }),
     ],
@@ -114,12 +114,12 @@ const PROGRAM = {
     main: [
       ex({ id: "d5-1", name: "Pull-Ups (weighted or BW)", sets: "4", reps: "5–8", load: "BW/added", rest: "30–45", notes: "Explosive on the pull, controlled on the way down." }),
       ex({ id: "d5-2", name: "Active Hang", sets: "2", reps: "20–30", repUnit: "sec", load: "BW", rest: "—", tag: "length", notes: "Before or after pull-ups. Low fatigue cost. Stop short of full passive hang if it aggravates the back." }),
-      ex({ id: "d5-3", name: "Single-Arm DB Row", sets: "4", reps: "8/side", load: "moderate", rest: "30–45", notes: "Powerful initiation, not just slow tempo." }),
+      ex({ id: "d5-3", name: "Single-Arm DB Row", sets: "4", reps: "8/side", load: "moderate", rest: "30–45", unilateral: true, notes: "Powerful initiation, not just slow tempo." }),
       ex({ id: "d5-4", name: "Kettlebell Swings", sets: "4", reps: "20 or 45", repUnit: "sec", load: "moderate KB", rest: "30–45", notes: "Volume increased. Hip-hinge power; complements the RDL pattern from Day 3." }),
       ex({ id: "d5-5", name: "Battle Ropes or Med Ball Slams", sets: "4", reps: "45–60", repUnit: "sec", load: "—", rest: "30–45", notes: "Work time increased. Explosive upper-body conditioning." }),
-      ex({ id: "d5-6", name: "Renegade Rows", sets: "3", reps: "8/side", load: "light–moderate DB", rest: "30–45", notes: "Core + pull stability combined." }),
+      ex({ id: "d5-6", name: "Renegade Rows", sets: "3", reps: "8/side", load: "light–moderate DB", rest: "30–45", unilateral: true, notes: "Core + pull stability combined." }),
       ex({ id: "d5-7", name: "Face Pulls", sets: "3", reps: "15", load: "light", rest: "30–45", notes: "Shoulder health maintenance." }),
-      ex({ id: "d5-8", name: "Farmer's Carry", sets: "3", reps: "40", repUnit: "m", load: "heavy", rest: "45–60", notes: "Rest-cap exception for grip/rack safety, not just intensity." }),
+      ex({ id: "d5-8", name: "Farmer's Carry", sets: "3", reps: "40", repUnit: "m", load: "heavy", loadUnit: "lb/hand", rest: "45–60", unilateral: true, notes: "Rest-cap exception for grip/rack safety, not just intensity." }),
       ex({ id: "d5-9", name: "Jefferson Curl", sets: "2", reps: "6–8", load: "empty bar / 5–10", rest: "—", isBackSafety: true, tag: "length", notes: "Slow tempo: 3–4 sec down, 3–4 sec up, full pause at bottom. Get a doctor/PT's input before progressing past light loads." }),
     ],
     finisher: "Cardio — full intervals here per the Running Progression, OR just the 8–10 min non-negotiable floor as the very last thing before leaving if energy's low",
@@ -130,14 +130,14 @@ const PROGRAM = {
     warmup: ["Jump rope or light jog — 5 min", "Leg swings (front-back, side-side) — 10/leg", "Walking lunges — 10/leg", "Lateral band walks — 10/side", "High knees / butt kicks — 20m each"],
     main: [
       ex({ id: "d6-1", name: "Box Jumps or Broad Jumps", sets: "4", reps: "5", load: "BW", rest: "45–60", effortType: "quality", notes: "Rest-cap exception for landing quality. Explosive, full reset between reps." }),
-      ex({ id: "d6-2", name: "Single-Leg RDL", sets: "3", reps: "8/side", load: "BW or light DB", rest: "30–45", notes: "Balance + posterior chain control, race-relevant on uneven terrain." }),
-      ex({ id: "d6-3", name: "Walking Lunges (loaded carry)", sets: "3", reps: "10/leg", load: "moderate", rest: "30–45", notes: "Mimics sandbag/bucket carries in Spartan obstacles." }),
+      ex({ id: "d6-2", name: "Single-Leg RDL", sets: "3", reps: "8/side", load: "BW or light DB", rest: "30–45", unilateral: true, notes: "Balance + posterior chain control, race-relevant on uneven terrain." }),
+      ex({ id: "d6-3", name: "Walking Lunges (loaded carry)", sets: "3", reps: "10/leg", load: "moderate", rest: "30–45", unilateral: true, notes: "Mimics sandbag/bucket carries in Spartan obstacles." }),
       ex({ id: "d6-4", name: "Wall Sit (isometric)", sets: "3", reps: "45–60", repUnit: "sec", load: "BW", rest: "30–45", notes: "Hold time increased. Quad endurance under static load." }),
       ex({ id: "d6-5", name: "Taekwondo Horse Stance Hold", sets: "3", reps: "30–45", repUnit: "sec", load: "BW", rest: "30–45", notes: "Static hip/adductor/quad strength, deep stance endurance." }),
-      ex({ id: "d6-6", name: "Taekwondo Side-Kick Chamber Hold", sets: "3", reps: "20–30", repUnit: "sec", load: "BW", rest: "30–45", notes: "Single-leg balance + hip stability under isometric load." }),
-      ex({ id: "d6-7", name: "Lateral Bounds", sets: "3", reps: "8/side", load: "BW", rest: "45–60", effortType: "quality", notes: "Rest-cap exception for landing quality. Lateral power, ankle stability." }),
+      ex({ id: "d6-6", name: "Taekwondo Side-Kick Chamber Hold", sets: "3", reps: "20–30", repUnit: "sec", load: "BW", rest: "30–45", unilateral: true, notes: "Single-leg balance + hip stability under isometric load." }),
+      ex({ id: "d6-7", name: "Lateral Bounds", sets: "3", reps: "8/side", load: "BW", rest: "45–60", effortType: "quality", unilateral: true, notes: "Rest-cap exception for landing quality. Lateral power, ankle stability." }),
       ex({ id: "d6-8", name: "Sled Push or Drag (if available)", sets: "3", reps: "20", repUnit: "m", load: "moderate", rest: "30–45", notes: "Direct carryover to Spartan sled/carry obstacles." }),
-      ex({ id: "d6-9", name: "Cossack Squat", sets: "3", reps: "8/side", load: "BW or light", rest: "30–45", tag: "length", optional: true, notes: "Optional — skip if the day feels long, especially with the new Taekwondo holds added." }),
+      ex({ id: "d6-9", name: "Cossack Squat", sets: "3", reps: "8/side", load: "BW or light", rest: "30–45", tag: "length", optional: true, unilateral: true, notes: "Optional — skip if the day feels long, especially with the new Taekwondo holds added." }),
     ],
     footwork: "Taekwondo Footwork Drill — 5 min, open floor: step-slide (forward/back), pivot steps, quick direction changes. Same slot as Day 4's boxing footwork drill.",
     finisher: "Cardio — full intervals per the Running Progression, OR the 8–10 min non-negotiable floor if energy's low, then Pallof Press 3×10/side either way",
@@ -174,7 +174,61 @@ const CONTENT_LABEL = { flexibility: "Flexibility Protocol (full)", stability: "
 
 /* ============================== HELPERS ============================== */
 
-function emptySet() { return { load: "", reps: "", rir: null }; }
+function emptySide() { return { load: "", reps: "" }; }
+
+function emptySet(unilateral) {
+  return unilateral ? { left: emptySide(), right: emptySide(), rir: null } : { load: "", reps: "", rir: null };
+}
+
+function isUnilateralSet(set) {
+  return !!set && (set.left !== undefined || set.right !== undefined);
+}
+
+function formatSetsSummary(sets) {
+  const filled = (sets || []).filter((s) =>
+    isUnilateralSet(s)
+      ? (s.left?.load || s.left?.reps || s.right?.load || s.right?.reps)
+      : (s.load || s.reps)
+  );
+  if (!filled.length) return "—";
+  return filled
+    .map((s) =>
+      isUnilateralSet(s)
+        ? `L ${s.left?.load || "–"}×${s.left?.reps || "–"} / R ${s.right?.load || "–"}×${s.right?.reps || "–"}`
+        : `${s.load || "–"}×${s.reps || "–"}`
+    )
+    .join(", ");
+}
+
+const OVERRIDES_KEY = "program-overrides";
+
+function loadOverrides() {
+  try {
+    const raw = localStorage.getItem(OVERRIDES_KEY);
+    return raw ? JSON.parse(raw) : { exercises: {}, core: {} };
+  } catch (e) {
+    return { exercises: {}, core: {} };
+  }
+}
+
+function saveOverrides(overrides) {
+  try {
+    localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function applyExerciseOverride(exc, overrides) {
+  const o = overrides?.exercises?.[exc.id];
+  return o ? { ...exc, ...o } : exc;
+}
+
+function applyCoreOverride(item, overrides) {
+  const o = overrides?.core?.[item.id];
+  return o ? { ...item, ...o } : item;
+}
 
 function rirToRpe(rir) {
   if (rir === null || rir === "") return "—";
@@ -203,21 +257,28 @@ async function saveLogToStorage(log) {
 
 function findLastEntry(sessions, day, exerciseId, excludeWeek) {
   const matches = sessions
-    .filter((s) => s.day === day && s.week !== excludeWeek && s.entries && s.entries[exerciseId] && (s.entries[exerciseId].sets || []).some(st => st.load || st.reps))
+    .filter((s) => s.day === day && s.week !== excludeWeek && s.entries && s.entries[exerciseId] && (s.entries[exerciseId].sets || []).some(st => isUnilateralSet(st) ? (st.left?.load || st.left?.reps || st.right?.load || st.right?.reps) : (st.load || st.reps)))
     .sort((a, b) => b.week - a.week);
   return matches[0] ? matches[0].entries[exerciseId] : null;
 }
 
 function exportCSV(sessions) {
-  const rows = [["date", "week", "day", "exercise", "set", "load", "reps_or_duration", "rir"]];
+  const rows = [["date", "week", "day", "exercise", "set", "side", "load", "reps_or_duration", "rir"]];
   sessions
     .slice()
     .sort((a, b) => a.week - b.week || a.day - b.day)
     .forEach((s) => {
       Object.values(s.entries || {}).forEach((entry) => {
         (entry.sets || []).forEach((set, i) => {
-          if (set.load || set.reps) {
-            rows.push([s.date, s.week, s.day, entry.name, i + 1, set.load, set.reps, set.rir ?? ""]);
+          if (isUnilateralSet(set)) {
+            if (set.left && (set.left.load || set.left.reps)) {
+              rows.push([s.date, s.week, s.day, entry.name, i + 1, "L", set.left.load, set.left.reps, set.rir ?? ""]);
+            }
+            if (set.right && (set.right.load || set.right.reps)) {
+              rows.push([s.date, s.week, s.day, entry.name, i + 1, "R", set.right.load, set.right.reps, set.rir ?? ""]);
+            }
+          } else if (set.load || set.reps) {
+            rows.push([s.date, s.week, s.day, entry.name, i + 1, "", set.load, set.reps, set.rir ?? ""]);
           }
         });
       });
@@ -364,7 +425,59 @@ function EffortPicker({ value, onChange, type }) {
   );
 }
 
-function SetRow({ idx, set, repUnit, onChange, onRemove, effortType }) {
+const setInputStyle = { width: 56, background: "var(--surface2)", border: "1px solid var(--line)", borderRadius: 6, padding: "6px 8px", color: "var(--text)", fontFamily: "JetBrains Mono, monospace", fontSize: 13 };
+
+function SetRow({ idx, set, repUnit, onChange, onRemove, effortType, unilateral }) {
+  const repsPlaceholder = repUnit === "sec" ? "sec" : repUnit === "m" ? "m" : "reps";
+
+  if (unilateral) {
+    const left = set.left || emptySide();
+    const right = set.right || emptySide();
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderTop: "1px solid var(--line)", flexWrap: "wrap" }}>
+        <span style={{ width: 22, fontFamily: "JetBrains Mono, monospace", fontSize: 12, color: "var(--dim)" }}>{idx + 1}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 10, color: "var(--dim)", fontFamily: "JetBrains Mono, monospace" }}>L</span>
+          <input
+            type="number" inputMode="decimal" placeholder="load"
+            value={left.load}
+            onChange={(e) => onChange({ ...set, left: { ...left, load: e.target.value } })}
+            style={{ ...setInputStyle, width: 52 }}
+          />
+          <input
+            type="number" inputMode="decimal" placeholder={repsPlaceholder}
+            value={left.reps}
+            onChange={(e) => onChange({ ...set, left: { ...left, reps: e.target.value } })}
+            style={{ ...setInputStyle, width: 48 }}
+          />
+        </div>
+        <div style={{ width: 1, alignSelf: "stretch", background: "var(--line)" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 10, color: "var(--dim)", fontFamily: "JetBrains Mono, monospace" }}>R</span>
+          <input
+            type="number" inputMode="decimal" placeholder="load"
+            value={right.load}
+            onChange={(e) => onChange({ ...set, right: { ...right, load: e.target.value } })}
+            style={{ ...setInputStyle, width: 52 }}
+          />
+          <input
+            type="number" inputMode="decimal" placeholder={repsPlaceholder}
+            value={right.reps}
+            onChange={(e) => onChange({ ...set, right: { ...right, reps: e.target.value } })}
+            style={{ ...setInputStyle, width: 48 }}
+          />
+        </div>
+        <EffortPicker value={set.rir} onChange={(v) => onChange({ ...set, rir: v })} type={effortType} />
+        {effortType === "rir" && set.rir && (
+          <span style={{ fontSize: 10, color: "var(--dim)", fontFamily: "JetBrains Mono, monospace" }}>RPE {rirToRpe(set.rir)}</span>
+        )}
+        <button onClick={onRemove} style={{ marginLeft: "auto", color: "var(--dim)", cursor: "pointer" }} aria-label="Remove set">
+          <X size={14} />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderTop: "1px solid var(--line)", flexWrap: "wrap" }}>
       <span style={{ width: 22, fontFamily: "JetBrains Mono, monospace", fontSize: 12, color: "var(--dim)" }}>{idx + 1}</span>
@@ -372,13 +485,13 @@ function SetRow({ idx, set, repUnit, onChange, onRemove, effortType }) {
         type="number" inputMode="decimal" placeholder="load"
         value={set.load}
         onChange={(e) => onChange({ ...set, load: e.target.value })}
-        style={{ width: 64, background: "var(--surface2)", border: "1px solid var(--line)", borderRadius: 6, padding: "6px 8px", color: "var(--text)", fontFamily: "JetBrains Mono, monospace", fontSize: 13 }}
+        style={{ ...setInputStyle, width: 64 }}
       />
       <input
-        type="number" inputMode="decimal" placeholder={repUnit === "sec" ? "sec" : repUnit === "m" ? "m" : "reps"}
+        type="number" inputMode="decimal" placeholder={repsPlaceholder}
         value={set.reps}
         onChange={(e) => onChange({ ...set, reps: e.target.value })}
-        style={{ width: 56, background: "var(--surface2)", border: "1px solid var(--line)", borderRadius: 6, padding: "6px 8px", color: "var(--text)", fontFamily: "JetBrains Mono, monospace", fontSize: 13 }}
+        style={setInputStyle}
       />
       <EffortPicker value={set.rir} onChange={(v) => onChange({ ...set, rir: v })} type={effortType} />
       {effortType === "rir" && set.rir && (
@@ -391,43 +504,132 @@ function SetRow({ idx, set, repUnit, onChange, onRemove, effortType }) {
   );
 }
 
-function ExerciseCard({ exercise, sets, onSetChange, onAddSet, onRemoveSet, lastEntry, supersetLabel }) {
+const editLabelStyle = { display: "flex", flexDirection: "column", gap: 3, fontSize: 11, color: "var(--dim)", flex: 1 };
+const editInputStyle = { background: "var(--bg)", border: "1px solid var(--line)", borderRadius: 6, padding: "6px 8px", color: "var(--text)", fontFamily: "Inter, sans-serif", fontSize: 13 };
+const editBtnPrimary = { background: "var(--accent)", color: "var(--bg)", border: "none", borderRadius: 6, padding: "6px 12px", fontFamily: "Oswald, sans-serif", fontSize: 12, letterSpacing: 0.3, cursor: "pointer" };
+const editBtnSecondary = { background: "var(--surface2)", color: "var(--text)", border: "1px solid var(--line)", borderRadius: 6, padding: "6px 12px", fontFamily: "Oswald, sans-serif", fontSize: 12, letterSpacing: 0.3, cursor: "pointer" };
+
+function ExerciseEditForm({ exercise, onSave, onCancel, onReset, isOverridden }) {
+  const [form, setForm] = useState({
+    name: exercise.name,
+    sets: exercise.sets,
+    reps: exercise.reps,
+    load: exercise.load,
+    loadUnit: exercise.loadUnit,
+    rest: exercise.rest,
+    unilateral: !!exercise.unilateral,
+  });
+  return (
+    <div style={{ marginTop: 8, border: "1px solid var(--accent)", borderRadius: 8, padding: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+      <label style={editLabelStyle}>
+        Exercise name
+        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={editInputStyle} />
+      </label>
+      <div style={{ display: "flex", gap: 8 }}>
+        <label style={editLabelStyle}>
+          Sets
+          <input value={form.sets} onChange={(e) => setForm({ ...form, sets: e.target.value })} style={editInputStyle} />
+        </label>
+        <label style={editLabelStyle}>
+          Reps
+          <input value={form.reps} onChange={(e) => setForm({ ...form, reps: e.target.value })} style={editInputStyle} />
+        </label>
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <label style={editLabelStyle}>
+          Target load
+          <input value={form.load} onChange={(e) => setForm({ ...form, load: e.target.value })} style={editInputStyle} />
+        </label>
+        <label style={editLabelStyle}>
+          Unit
+          <input value={form.loadUnit} onChange={(e) => setForm({ ...form, loadUnit: e.target.value })} style={editInputStyle} />
+        </label>
+        <label style={editLabelStyle}>
+          Rest
+          <input value={form.rest} onChange={(e) => setForm({ ...form, rest: e.target.value })} style={editInputStyle} />
+        </label>
+      </div>
+      <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--text)", cursor: "pointer" }}>
+        <input type="checkbox" checked={form.unilateral} onChange={(e) => setForm({ ...form, unilateral: e.target.checked })} />
+        Log per side (separate left / right weight &amp; reps)
+      </label>
+      <div style={{ display: "flex", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
+        <button onClick={() => onSave(form)} style={editBtnPrimary}>Save</button>
+        <button onClick={onCancel} style={editBtnSecondary}>Cancel</button>
+        {isOverridden && <button onClick={onReset} style={{ ...editBtnSecondary, color: "var(--hot)" }}>Reset to default</button>}
+      </div>
+    </div>
+  );
+}
+
+function ExerciseCard({ exercise, sets, onSetChange, onAddSet, onRemoveSet, lastEntry, supersetLabel, onSaveEdit, onResetEdit, isOverridden }) {
   const [open, setOpen] = useState(true);
+  const [editing, setEditing] = useState(false);
+
+  function handleSave(form) {
+    onSaveEdit(form);
+    setEditing(false);
+  }
+  function handleReset() {
+    onResetEdit();
+    setEditing(false);
+  }
+
   return (
     <div style={{ border: "1px solid var(--line)", borderRadius: 10, background: "var(--surface)", padding: 12, marginBottom: supersetLabel ? 6 : 12 }}>
-      <button onClick={() => setOpen(!open)} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "flex-start", cursor: "pointer", textAlign: "left" }}>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-            <span style={{ fontFamily: "Oswald, sans-serif", fontSize: 15, letterSpacing: 0.2 }}>{exercise.name}</span>
-            {exercise.isBackSafety && (
-              <span title="Back-safety exception — always conservative" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10, color: "var(--hot)", border: "1px solid var(--hot)", borderRadius: 999, padding: "1px 6px" }}>
-                <Shield size={10} /> back
-              </span>
-            )}
-            {exercise.tag === "length" && (
-              <span title="Strength-at-length addition" style={{ fontSize: 10, color: "var(--good)", border: "1px solid var(--good)", borderRadius: 999, padding: "1px 6px" }}>
-                length
-              </span>
-            )}
-            {exercise.optional && (
-              <span style={{ fontSize: 10, color: "var(--dim)", border: "1px solid var(--line)", borderRadius: 999, padding: "1px 6px" }}>
-                optional
-              </span>
-            )}
-          </div>
-          <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 12, color: "var(--dim)", marginTop: 3 }}>
-            {exercise.sets}×{exercise.reps}{exercise.repUnit !== "reps" ? ` ${exercise.repUnit}` : ""} {exercise.load ? `@ ${exercise.load} ${exercise.loadUnit}` : ""} · rest {exercise.rest}
-          </div>
-          {lastEntry && (
-            <div style={{ fontSize: 11, color: "var(--dim)", marginTop: 3 }}>
-              Last: {lastEntry.sets.filter(s => s.load || s.reps).map((s) => `${s.load || "–"}×${s.reps || "–"}`).join(", ") || "—"}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
+        <button onClick={() => setOpen(!open)} style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-start", cursor: "pointer", textAlign: "left", background: "none", border: "none", padding: 0 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              <span style={{ fontFamily: "Oswald, sans-serif", fontSize: 15, letterSpacing: 0.2 }}>{exercise.name}</span>
+              {exercise.isBackSafety && (
+                <span title="Back-safety exception — always conservative" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10, color: "var(--hot)", border: "1px solid var(--hot)", borderRadius: 999, padding: "1px 6px" }}>
+                  <Shield size={10} /> back
+                </span>
+              )}
+              {exercise.tag === "length" && (
+                <span title="Strength-at-length addition" style={{ fontSize: 10, color: "var(--good)", border: "1px solid var(--good)", borderRadius: 999, padding: "1px 6px" }}>
+                  length
+                </span>
+              )}
+              {exercise.optional && (
+                <span style={{ fontSize: 10, color: "var(--dim)", border: "1px solid var(--line)", borderRadius: 999, padding: "1px 6px" }}>
+                  optional
+                </span>
+              )}
+              {exercise.unilateral && (
+                <span title="Logged per side — left and right tracked separately" style={{ fontSize: 10, color: "var(--accent)", border: "1px solid var(--accent)", borderRadius: 999, padding: "1px 6px" }}>
+                  per side
+                </span>
+              )}
             </div>
-          )}
-        </div>
-        {open ? <ChevronUp size={16} color="var(--dim)" /> : <ChevronDown size={16} color="var(--dim)" />}
-      </button>
+            <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 12, color: "var(--dim)", marginTop: 3 }}>
+              {exercise.sets}×{exercise.reps}{exercise.repUnit !== "reps" ? ` ${exercise.repUnit}` : ""} {exercise.load ? `@ ${exercise.load} ${exercise.loadUnit}` : ""} · rest {exercise.rest}
+            </div>
+            {lastEntry && (
+              <div style={{ fontSize: 11, color: "var(--dim)", marginTop: 3 }}>
+                Last: {formatSetsSummary(lastEntry.sets)}
+              </div>
+            )}
+          </div>
+          {open ? <ChevronUp size={16} color="var(--dim)" /> : <ChevronDown size={16} color="var(--dim)" />}
+        </button>
+        <button onClick={() => setEditing(!editing)} aria-label="Edit exercise" style={{ color: editing ? "var(--accent)" : "var(--dim)", cursor: "pointer", padding: 4, flexShrink: 0 }}>
+          <Pencil size={14} />
+        </button>
+      </div>
 
-      {open && (
+      {editing && (
+        <ExerciseEditForm
+          exercise={exercise}
+          onSave={handleSave}
+          onCancel={() => setEditing(false)}
+          onReset={handleReset}
+          isOverridden={isOverridden}
+        />
+      )}
+
+      {open && !editing && (
         <div style={{ marginTop: 8 }}>
           {exercise.notes && <p style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.5, margin: "0 0 8px" }}>{exercise.notes}</p>}
           {exercise.isBackSafety && (
@@ -443,6 +645,7 @@ function ExerciseCard({ exercise, sets, onSetChange, onAddSet, onRemoveSet, last
               set={set}
               repUnit={exercise.repUnit}
               effortType={exercise.effortType}
+              unilateral={exercise.unilateral}
               onChange={(val) => onSetChange(i, val)}
               onRemove={() => onRemoveSet(i)}
             />
@@ -456,8 +659,34 @@ function ExerciseCard({ exercise, sets, onSetChange, onAddSet, onRemoveSet, last
   );
 }
 
-function CoreRoutineBlock({ done, onToggle }) {
+function CoreItemEditForm({ item, onSave, onCancel, onReset, isOverridden }) {
+  const [form, setForm] = useState({ name: item.name, dose: item.dose, note: item.note });
+  return (
+    <div style={{ marginTop: 4, marginBottom: 6, border: "1px solid var(--accent)", borderRadius: 8, padding: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+      <label style={editLabelStyle}>
+        Name
+        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={editInputStyle} />
+      </label>
+      <label style={editLabelStyle}>
+        Dose
+        <input value={form.dose} onChange={(e) => setForm({ ...form, dose: e.target.value })} style={editInputStyle} />
+      </label>
+      <label style={editLabelStyle}>
+        Note
+        <input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} style={editInputStyle} />
+      </label>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button onClick={() => onSave(form)} style={editBtnPrimary}>Save</button>
+        <button onClick={onCancel} style={editBtnSecondary}>Cancel</button>
+        {isOverridden && <button onClick={onReset} style={{ ...editBtnSecondary, color: "var(--hot)" }}>Reset to default</button>}
+      </div>
+    </div>
+  );
+}
+
+function CoreRoutineBlock({ items, done, onToggle, onSaveEdit, onResetEdit, overriddenIds }) {
   const [open, setOpen] = useState(true);
+  const [editingId, setEditingId] = useState(null);
   return (
     <div style={{ border: "1px solid var(--good)", borderRadius: 10, background: "var(--surface)", padding: 12, marginBottom: 12 }}>
       <button onClick={() => setOpen(!open)} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
@@ -469,15 +698,31 @@ function CoreRoutineBlock({ done, onToggle }) {
       {open && (
         <div style={{ marginTop: 8 }}>
           <p style={{ fontSize: 11, color: "var(--dim)", margin: "0 0 8px" }}>{CORE_ROUTINE_NOTE}</p>
-          {CORE_ROUTINE.map((c) => (
-            <label key={c.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, padding: "5px 0", cursor: "pointer" }}>
-              <input type="checkbox" checked={done.includes(c.id)} onChange={() => onToggle(c.id)} style={{ marginTop: 3 }} />
-              <span>
-                <span style={{ fontFamily: "Oswald, sans-serif", letterSpacing: 0.2 }}>{c.name}</span>
-                <span style={{ fontSize: 11, color: "var(--dim)" }}> — {c.dose}</span>
-                <br /><span style={{ fontSize: 11, color: "var(--dim)" }}>{c.note}</span>
-              </span>
-            </label>
+          {items.map((c) => (
+            <div key={c.id}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "5px 0" }}>
+                <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, cursor: "pointer", flex: 1 }}>
+                  <input type="checkbox" checked={done.includes(c.id)} onChange={() => onToggle(c.id)} style={{ marginTop: 3 }} />
+                  <span>
+                    <span style={{ fontFamily: "Oswald, sans-serif", letterSpacing: 0.2 }}>{c.name}</span>
+                    <span style={{ fontSize: 11, color: "var(--dim)" }}> — {c.dose}</span>
+                    <br /><span style={{ fontSize: 11, color: "var(--dim)" }}>{c.note}</span>
+                  </span>
+                </label>
+                <button onClick={() => setEditingId(editingId === c.id ? null : c.id)} aria-label="Edit core exercise" style={{ color: editingId === c.id ? "var(--accent)" : "var(--dim)", cursor: "pointer", padding: 4, flexShrink: 0 }}>
+                  <Pencil size={12} />
+                </button>
+              </div>
+              {editingId === c.id && (
+                <CoreItemEditForm
+                  item={c}
+                  isOverridden={overriddenIds.includes(c.id)}
+                  onSave={(form) => { onSaveEdit(c.id, form); setEditingId(null); }}
+                  onCancel={() => setEditingId(null)}
+                  onReset={() => { onResetEdit(c.id); setEditingId(null); }}
+                />
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -624,6 +869,7 @@ export default function App() {
   const [finisherDone, setFinisherDone] = useState(false);
   const [view, setView] = useState("log");
   const [saveStatus, setSaveStatus] = useState(null);
+  const [overrides, setOverrides] = useState(() => loadOverrides());
 
   useEffect(() => {
     (async () => {
@@ -642,8 +888,9 @@ export default function App() {
     program.main
       .filter((exc) => !exc.weekParity || exc.weekParity === parity)
       .forEach((exc) => {
+        const merged = applyExerciseOverride(exc, overrides);
         const found = existing && existing.entries && existing.entries[exc.id];
-        initial[exc.id] = found && found.sets && found.sets.length ? found.sets : Array.from({ length: Math.max(parseInt(exc.sets, 10) || 3, 1) }, emptySet);
+        initial[exc.id] = found && found.sets && found.sets.length ? found.sets : Array.from({ length: Math.max(parseInt(merged.sets, 10) || 3, 1) }, () => emptySet(merged.unilateral));
       });
     setSessionState(initial);
     setStretchDone((existing && existing.stretchDone) || []);
@@ -658,8 +905,8 @@ export default function App() {
       return { ...prev, [exerciseId]: sets };
     });
   }
-  function addSet(exerciseId) {
-    setSessionState((prev) => ({ ...prev, [exerciseId]: [...(prev[exerciseId] || []), emptySet()] }));
+  function addSet(exerciseId, unilateral) {
+    setSessionState((prev) => ({ ...prev, [exerciseId]: [...(prev[exerciseId] || []), emptySet(unilateral)] }));
   }
   function removeSet(exerciseId, idx) {
     setSessionState((prev) => {
@@ -675,6 +922,39 @@ export default function App() {
     setCoreDone((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
   }
 
+  function saveExerciseOverride(id, fields) {
+    setOverrides((prev) => {
+      const next = { ...prev, exercises: { ...prev.exercises, [id]: fields } };
+      saveOverrides(next);
+      return next;
+    });
+  }
+  function resetExerciseOverride(id) {
+    setOverrides((prev) => {
+      const nextExercises = { ...prev.exercises };
+      delete nextExercises[id];
+      const next = { ...prev, exercises: nextExercises };
+      saveOverrides(next);
+      return next;
+    });
+  }
+  function saveCoreOverride(id, fields) {
+    setOverrides((prev) => {
+      const next = { ...prev, core: { ...prev.core, [id]: fields } };
+      saveOverrides(next);
+      return next;
+    });
+  }
+  function resetCoreOverride(id) {
+    setOverrides((prev) => {
+      const nextCore = { ...prev.core };
+      delete nextCore[id];
+      const next = { ...prev, core: nextCore };
+      saveOverrides(next);
+      return next;
+    });
+  }
+
   async function handleSave() {
     setSaveStatus("saving");
     const program = PROGRAM[selectedDay];
@@ -683,7 +963,8 @@ export default function App() {
     program.main
       .filter((exc) => !exc.weekParity || exc.weekParity === parity)
       .forEach((exc) => {
-        entries[exc.id] = { name: exc.name, sets: sessionState[exc.id] || [] };
+        const merged = applyExerciseOverride(exc, overrides);
+        entries[exc.id] = { name: merged.name, unilateral: merged.unilateral, sets: sessionState[exc.id] || [] };
       });
     const dayMeta = DAY_META[selectedDay - 1];
     const newSession = {
@@ -729,7 +1010,9 @@ export default function App() {
   const isRecoveryWeek = !!weekInfo.recoveryWeek;
   const program = isRecoveryWeek ? null : PROGRAM[selectedDay];
   const parity = weekParityOf(selectedWeek);
-  const visibleMain = program ? program.main.filter((e) => !e.weekParity || e.weekParity === parity) : [];
+  const visibleMain = program
+    ? program.main.filter((e) => !e.weekParity || e.weekParity === parity).map((e) => applyExerciseOverride(e, overrides))
+    : [];
   const groups = program ? groupExercises(visibleMain) : [];
 
   return (
@@ -771,7 +1054,16 @@ export default function App() {
                 </ul>
               </details>
 
-              {program.coreRoutine && <CoreRoutineBlock done={coreDone} onToggle={toggleCore} />}
+              {program.coreRoutine && (
+                <CoreRoutineBlock
+                  items={CORE_ROUTINE.map((c) => applyCoreOverride(c, overrides))}
+                  done={coreDone}
+                  onToggle={toggleCore}
+                  onSaveEdit={saveCoreOverride}
+                  onResetEdit={resetCoreOverride}
+                  overriddenIds={Object.keys(overrides.core || {})}
+                />
+              )}
 
               {groups.map((g, gi) =>
                 g.type === "superset" ? (
@@ -783,9 +1075,12 @@ export default function App() {
                         exercise={exc}
                         sets={sessionState[exc.id] || []}
                         onSetChange={(idx, val) => updateSet(exc.id, idx, val)}
-                        onAddSet={() => addSet(exc.id)}
+                        onAddSet={() => addSet(exc.id, exc.unilateral)}
                         onRemoveSet={(idx) => removeSet(exc.id, idx)}
                         lastEntry={findLastEntry(allSessions, selectedDay, exc.id, selectedWeek)}
+                        onSaveEdit={(fields) => saveExerciseOverride(exc.id, fields)}
+                        onResetEdit={() => resetExerciseOverride(exc.id)}
+                        isOverridden={!!overrides.exercises?.[exc.id]}
                         supersetLabel
                       />
                     ))}
@@ -796,9 +1091,12 @@ export default function App() {
                     exercise={g.items[0]}
                     sets={sessionState[g.items[0].id] || []}
                     onSetChange={(idx, val) => updateSet(g.items[0].id, idx, val)}
-                    onAddSet={() => addSet(g.items[0].id)}
+                    onAddSet={() => addSet(g.items[0].id, g.items[0].unilateral)}
                     onRemoveSet={(idx) => removeSet(g.items[0].id, idx)}
                     lastEntry={findLastEntry(allSessions, selectedDay, g.items[0].id, selectedWeek)}
+                    onSaveEdit={(fields) => saveExerciseOverride(g.items[0].id, fields)}
+                    onResetEdit={() => resetExerciseOverride(g.items[0].id)}
+                    isOverridden={!!overrides.exercises?.[g.items[0].id]}
                   />
                 )
               )}
