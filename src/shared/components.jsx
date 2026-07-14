@@ -114,6 +114,7 @@ export function ExerciseEditForm({ exercise, onSave, onCancel, onReset, isOverri
     name: exercise.name,
     sets: exercise.sets,
     reps: exercise.reps,
+    repUnit: exercise.repUnit || "reps",
     load: exercise.load,
     loadUnit: exercise.loadUnit,
     rest: exercise.rest,
@@ -131,9 +132,28 @@ export function ExerciseEditForm({ exercise, onSave, onCancel, onReset, isOverri
           <input value={form.sets} onChange={(e) => setForm({ ...form, sets: e.target.value })} style={editInputStyle} />
         </label>
         <label style={editLabelStyle}>
-          Reps
+          {form.repUnit === "sec" ? "Time (per set)" : "Reps"}
           <input value={form.reps} onChange={(e) => setForm({ ...form, reps: e.target.value })} style={editInputStyle} />
         </label>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <span style={{ fontSize: 11, color: "var(--dim)" }}>Logged as</span>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, repUnit: "reps" })}
+            style={{ flex: 1, padding: "6px 10px", borderRadius: 6, cursor: "pointer", fontFamily: "JetBrains Mono, monospace", fontSize: 12, background: form.repUnit !== "sec" ? "var(--accent)" : "var(--surface2)", color: form.repUnit !== "sec" ? "var(--bg)" : "var(--dim)", border: "1px solid var(--line)" }}
+          >
+            Sets &amp; Reps
+          </button>
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, repUnit: "sec" })}
+            style={{ flex: 1, padding: "6px 10px", borderRadius: 6, cursor: "pointer", fontFamily: "JetBrains Mono, monospace", fontSize: 12, background: form.repUnit === "sec" ? "var(--accent)" : "var(--surface2)", color: form.repUnit === "sec" ? "var(--bg)" : "var(--dim)", border: "1px solid var(--line)" }}
+          >
+            Sets &amp; Time
+          </button>
+        </div>
       </div>
       <div style={{ display: "flex", gap: 8 }}>
         <label style={editLabelStyle}>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Save, Download, Check, History, Zap } from "lucide-react";
 import { ExerciseCard } from "../shared/components.jsx";
 import {
-  emptySet, loadOverrides, saveOverrides, applyExerciseOverride,
+  emptySet, isUnilateralSet, loadOverrides, saveOverrides, applyExerciseOverride,
   loadLog, saveLogToStorage, findLastEntry, exportCSV, groupExercises,
 } from "../shared/helpers.js";
 import { OPT_PHASES, EXERCISE_LIBRARY } from "./data.js";
@@ -67,7 +67,9 @@ function OptHistoryView({ sessions, onExport }) {
       {sorted.length === 0 && <p style={{ color: "var(--dim)", fontSize: 13 }}>No sessions saved yet — log a workout and it'll show up here.</p>}
       {sorted.map((s) => {
         const phaseInfo = OPT_PHASES[s.phase - 1];
-        const setCount = Object.values(s.entries || {}).reduce((acc, e) => acc + (e.sets || []).filter(x => x.load || x.reps).length, 0);
+        const setCount = Object.values(s.entries || {}).reduce((acc, e) => acc + (e.sets || []).filter((x) =>
+          isUnilateralSet(x) ? (x.left?.load || x.left?.reps || x.right?.load || x.right?.reps) : (x.load || x.reps)
+        ).length, 0);
         return (
           <div key={s.id} style={{ border: "1px solid var(--line)", borderRadius: 8, padding: "10px 12px", marginBottom: 8 }}>
             <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 13 }}>Phase {s.phase} — {phaseInfo ? phaseInfo.name : ""}</div>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
   Save, Download, ChevronDown, ChevronUp,
-  Shield, Leaf, Flame, Check, Info, History, ListChecks, Pencil
+  Shield, Leaf, Flame, Check, Info, History, ListChecks
 } from "lucide-react";
-import { ExerciseCard, editLabelStyle, editInputStyle, editBtnPrimary, editBtnSecondary } from "../shared/components.jsx";
+import { ExerciseCard } from "../shared/components.jsx";
 import {
-  emptySet, loadOverrides, saveOverrides, applyExerciseOverride, applyCoreOverride,
+  emptySet, isUnilateralSet, loadOverrides, saveOverrides, applyExerciseOverride,
   loadLog, saveLogToStorage, findLastEntry, exportCSV, groupExercises,
 } from "../shared/helpers.js";
 import {
@@ -99,34 +99,8 @@ function DayTabs({ selectedDay, onSelect, count }) {
   );
 }
 
-function CoreItemEditForm({ item, onSave, onCancel, onReset, isOverridden }) {
-  const [form, setForm] = useState({ name: item.name, dose: item.dose, note: item.note });
-  return (
-    <div style={{ marginTop: 4, marginBottom: 6, border: "1px solid var(--accent)", borderRadius: 8, padding: 10, display: "flex", flexDirection: "column", gap: 8 }}>
-      <label style={editLabelStyle}>
-        Name
-        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={editInputStyle} />
-      </label>
-      <label style={editLabelStyle}>
-        Dose
-        <input value={form.dose} onChange={(e) => setForm({ ...form, dose: e.target.value })} style={editInputStyle} />
-      </label>
-      <label style={editLabelStyle}>
-        Note
-        <input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} style={editInputStyle} />
-      </label>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button onClick={() => onSave(form)} style={editBtnPrimary}>Save</button>
-        <button onClick={onCancel} style={editBtnSecondary}>Cancel</button>
-        {isOverridden && <button onClick={onReset} style={{ ...editBtnSecondary, color: "var(--hot)" }}>Reset to default</button>}
-      </div>
-    </div>
-  );
-}
-
-function CoreRoutineBlock({ items, done, onToggle, onSaveEdit, onResetEdit, overriddenIds }) {
+function CoreRoutineSection({ items, sessionState, onSetChange, onAddSet, onRemoveSet, allSessions, selectedWeek, onSaveEdit, onResetEdit, overrides }) {
   const [open, setOpen] = useState(true);
-  const [editingId, setEditingId] = useState(null);
   return (
     <div style={{ border: "1px solid var(--good)", borderRadius: 10, background: "var(--surface)", padding: 12, marginBottom: 12 }}>
       <button onClick={() => setOpen(!open)} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
@@ -138,31 +112,19 @@ function CoreRoutineBlock({ items, done, onToggle, onSaveEdit, onResetEdit, over
       {open && (
         <div style={{ marginTop: 8 }}>
           <p style={{ fontSize: 11, color: "var(--dim)", margin: "0 0 8px" }}>{CORE_ROUTINE_NOTE}</p>
-          {items.map((c) => (
-            <div key={c.id}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "5px 0" }}>
-                <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, cursor: "pointer", flex: 1 }}>
-                  <input type="checkbox" checked={done.includes(c.id)} onChange={() => onToggle(c.id)} style={{ marginTop: 3 }} />
-                  <span>
-                    <span style={{ fontFamily: "Oswald, sans-serif", letterSpacing: 0.2 }}>{c.name}</span>
-                    <span style={{ fontSize: 11, color: "var(--dim)" }}> — {c.dose}</span>
-                    <br /><span style={{ fontSize: 11, color: "var(--dim)" }}>{c.note}</span>
-                  </span>
-                </label>
-                <button onClick={() => setEditingId(editingId === c.id ? null : c.id)} aria-label="Edit core exercise" style={{ color: editingId === c.id ? "var(--accent)" : "var(--dim)", cursor: "pointer", padding: 4, flexShrink: 0 }}>
-                  <Pencil size={12} />
-                </button>
-              </div>
-              {editingId === c.id && (
-                <CoreItemEditForm
-                  item={c}
-                  isOverridden={overriddenIds.includes(c.id)}
-                  onSave={(form) => { onSaveEdit(c.id, form); setEditingId(null); }}
-                  onCancel={() => setEditingId(null)}
-                  onReset={() => { onResetEdit(c.id); setEditingId(null); }}
-                />
-              )}
-            </div>
+          {items.map((exc) => (
+            <ExerciseCard
+              key={exc.id}
+              exercise={exc}
+              sets={sessionState[exc.id] || []}
+              onSetChange={(idx, val) => onSetChange(exc.id, idx, val)}
+              onAddSet={() => onAddSet(exc.id, exc.unilateral)}
+              onRemoveSet={(idx) => onRemoveSet(exc.id, idx)}
+              lastEntry={findLastEntry(allSessions, exc.id, selectedWeek, "week")}
+              onSaveEdit={(fields) => onSaveEdit(exc.id, fields)}
+              onResetEdit={() => onResetEdit(exc.id)}
+              isOverridden={!!overrides.exercises?.[exc.id]}
+            />
           ))}
         </div>
       )}
@@ -232,7 +194,9 @@ function HistoryView({ sessions, onExport }) {
       {sorted.length === 0 && <p style={{ color: "var(--dim)", fontSize: 13 }}>No sessions saved yet — log a workout and it'll show up here.</p>}
       {sorted.map((s) => {
         const dayMeta = DAY_META[s.day - 1];
-        const setCount = Object.values(s.entries || {}).reduce((acc, e) => acc + (e.sets || []).filter(x => x.load || x.reps).length, 0);
+        const setCount = Object.values(s.entries || {}).reduce((acc, e) => acc + (e.sets || []).filter((x) =>
+          isUnilateralSet(x) ? (x.left?.load || x.left?.reps || x.right?.load || x.right?.reps) : (x.load || x.reps)
+        ).length, 0);
         return (
           <div key={s.id} style={{ border: "1px solid var(--line)", borderRadius: 8, padding: "10px 12px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
@@ -303,7 +267,6 @@ export default function SpartanProgram() {
   const [loading, setLoading] = useState(true);
   const [sessionState, setSessionState] = useState({});
   const [stretchDone, setStretchDone] = useState([]);
-  const [coreDone, setCoreDone] = useState([]);
   const [finisherDone, setFinisherDone] = useState(false);
   const [view, setView] = useState("log");
   const [saveStatus, setSaveStatus] = useState(null);
@@ -323,16 +286,19 @@ export default function SpartanProgram() {
     const parity = weekParityOf(selectedWeek);
     const existing = allSessions.find((s) => s.week === selectedWeek && s.day === selectedDay);
     const initial = {};
+    const seedExercise = (exc) => {
+      const merged = applyExerciseOverride(exc, overrides);
+      const found = existing && existing.entries && existing.entries[exc.id];
+      initial[exc.id] = found && found.sets && found.sets.length ? found.sets : Array.from({ length: Math.max(parseInt(merged.sets, 10) || 3, 1) }, () => emptySet(merged.unilateral));
+    };
     program.main
       .filter((exc) => !exc.weekParity || exc.weekParity === parity)
-      .forEach((exc) => {
-        const merged = applyExerciseOverride(exc, overrides);
-        const found = existing && existing.entries && existing.entries[exc.id];
-        initial[exc.id] = found && found.sets && found.sets.length ? found.sets : Array.from({ length: Math.max(parseInt(merged.sets, 10) || 3, 1) }, () => emptySet(merged.unilateral));
-      });
+      .forEach(seedExercise);
+    if (program.coreRoutine) {
+      CORE_ROUTINE.forEach(seedExercise);
+    }
     setSessionState(initial);
     setStretchDone((existing && existing.stretchDone) || []);
-    setCoreDone((existing && existing.coreDone) || []);
     setFinisherDone((existing && existing.finisherDone) || false);
   }, [selectedWeek, selectedDay, loading]); // eslint-disable-line
 
@@ -356,9 +322,6 @@ export default function SpartanProgram() {
   function toggleStretch(name) {
     setStretchDone((prev) => (prev.includes(name) ? prev.filter((s) => s !== name) : [...prev, name]));
   }
-  function toggleCore(id) {
-    setCoreDone((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
-  }
 
   function saveExerciseOverride(id, fields) {
     setOverrides((prev) => {
@@ -376,34 +339,22 @@ export default function SpartanProgram() {
       return next;
     });
   }
-  function saveCoreOverride(id, fields) {
-    setOverrides((prev) => {
-      const next = { ...prev, core: { ...prev.core, [id]: fields } };
-      saveOverrides(OVERRIDES_KEY, next);
-      return next;
-    });
-  }
-  function resetCoreOverride(id) {
-    setOverrides((prev) => {
-      const nextCore = { ...prev.core };
-      delete nextCore[id];
-      const next = { ...prev, core: nextCore };
-      saveOverrides(OVERRIDES_KEY, next);
-      return next;
-    });
-  }
 
   async function handleSave() {
     setSaveStatus("saving");
     const program = PROGRAM[selectedDay];
     const parity = weekParityOf(selectedWeek);
     const entries = {};
+    const captureExercise = (exc) => {
+      const merged = applyExerciseOverride(exc, overrides);
+      entries[exc.id] = { name: merged.name, unilateral: merged.unilateral, sets: sessionState[exc.id] || [] };
+    };
     program.main
       .filter((exc) => !exc.weekParity || exc.weekParity === parity)
-      .forEach((exc) => {
-        const merged = applyExerciseOverride(exc, overrides);
-        entries[exc.id] = { name: merged.name, unilateral: merged.unilateral, sets: sessionState[exc.id] || [] };
-      });
+      .forEach(captureExercise);
+    if (program.coreRoutine) {
+      CORE_ROUTINE.forEach(captureExercise);
+    }
     const dayMeta = DAY_META[selectedDay - 1];
     const newSession = {
       id: `w${selectedWeek}d${selectedDay}`,
@@ -413,7 +364,6 @@ export default function SpartanProgram() {
       date: new Date().toISOString().slice(0, 10),
       entries,
       stretchDone,
-      coreDone,
       finisherDone,
     };
     const newSessions = [...allSessions.filter((s) => !(s.week === selectedWeek && s.day === selectedDay)), newSession];
@@ -478,13 +428,17 @@ export default function SpartanProgram() {
               </details>
 
               {program.coreRoutine && (
-                <CoreRoutineBlock
-                  items={CORE_ROUTINE.map((c) => applyCoreOverride(c, overrides))}
-                  done={coreDone}
-                  onToggle={toggleCore}
-                  onSaveEdit={saveCoreOverride}
-                  onResetEdit={resetCoreOverride}
-                  overriddenIds={Object.keys(overrides.core || {})}
+                <CoreRoutineSection
+                  items={CORE_ROUTINE.map((c) => applyExerciseOverride(c, overrides))}
+                  sessionState={sessionState}
+                  onSetChange={updateSet}
+                  onAddSet={addSet}
+                  onRemoveSet={removeSet}
+                  allSessions={allSessions}
+                  selectedWeek={selectedWeek}
+                  onSaveEdit={saveExerciseOverride}
+                  onResetEdit={resetExerciseOverride}
+                  overrides={overrides}
                 />
               )}
 

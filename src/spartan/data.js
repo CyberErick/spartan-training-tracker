@@ -21,18 +21,19 @@ export const DAY_META = [
   { id: 6, name: "Legs", style: "Athletic / Isometric", short: "D6" },
 ];
 
-export const CORE_ROUTINE = [
-  { id: "plank-hold", name: "Plank Hold", dose: "3 x 30–45 sec", note: "Anti-extension, back-friendly bracing" },
-  { id: "dead-bug", name: "Dead Bug", dose: "3 x 10/side", note: "Anti-extension, spine stays neutral throughout" },
-  { id: "side-plank", name: "Side Plank", dose: "3 x 20–30 sec/side", note: "Anti-lateral flexion, obliques" },
-  { id: "bird-dog", name: "Bird Dog", dose: "3 x 10/side", note: "Anti-rotation, spinal stability" },
-  { id: "pallof-press", name: "Pallof Press", dose: "3 x 10/side", note: "Anti-rotation under load — light-moderate band/cable" },
-];
 export const CORE_ROUTINE_NOTE = "Done fresh, right after warm-up, before the main lift — same 5 exercises every hypertrophy day, ~10–12 min total.";
 
 export const NECK_CARE_LINE = "Neck care routine (see Neck Health Protocol) — 3–5 min";
 
 export const ex = (o) => ({ sets: "3", reps: "10", repUnit: "reps", load: "", loadUnit: "lb", rest: "60", notes: "", tag: null, superset: null, isBackSafety: false, effortType: "rir", optional: false, weekParity: null, unilateral: false, ...o });
+
+export const CORE_ROUTINE = [
+  ex({ id: "plank-hold", name: "Plank Hold", sets: "3", reps: "30–45", repUnit: "sec", rest: "30", notes: "Anti-extension, back-friendly bracing." }),
+  ex({ id: "dead-bug", name: "Dead Bug", sets: "3", reps: "10", rest: "30", unilateral: true, notes: "Anti-extension, spine stays neutral throughout." }),
+  ex({ id: "side-plank", name: "Side Plank", sets: "3", reps: "20–30", repUnit: "sec", rest: "30", unilateral: true, notes: "Anti-lateral flexion, obliques." }),
+  ex({ id: "bird-dog", name: "Bird Dog", sets: "3", reps: "10", rest: "30", unilateral: true, notes: "Anti-rotation, spinal stability." }),
+  ex({ id: "pallof-press", name: "Pallof Press", sets: "3", reps: "10", load: "light–moderate", loadUnit: "band/cable", rest: "30", unilateral: true, notes: "Anti-rotation under load — light-moderate band/cable." }),
+];
 
 export function weekParityOf(week) {
   return week % 2 === 1 ? "odd" : "even";
