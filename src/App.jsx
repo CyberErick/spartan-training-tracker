@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Menu, X, Dumbbell, Zap, BookOpen } from "lucide-react";
+import { Menu, X, Dumbbell, Zap, BookOpen, Images } from "lucide-react";
 import { fontImport, tokens } from "./shared/theme.js";
 import SpartanProgram from "./spartan/SpartanProgram.jsx";
 import OptProgram from "./opt/OptProgram.jsx";
 import ExerciseLibrary from "./library/ExerciseLibrary.jsx";
+import AllExercises from "./library/AllExercises.jsx";
 
 const PROGRAM_KEY = "selected-program";
 
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { id: "spartan", label: "Spartan Program", sub: "6-day race-prep split", icon: Dumbbell },
   { id: "opt", label: "NASM OPT Model", sub: "5-phase periodization", icon: Zap },
   { id: "library", label: "Exercise Library", sub: "14 categories, form & breathing cues", icon: BookOpen },
+  { id: "all-exercises", label: "All Exercises", sub: "200 exercises with images, searchable", icon: Images },
 ];
 
 export default function App() {
@@ -130,7 +132,10 @@ export default function App() {
           paddingRight: "max(16px, env(safe-area-inset-right))",
         }}
       >
-        {program === "spartan" ? <SpartanProgram /> : program === "opt" ? <OptProgram /> : <ExerciseLibrary />}
+        {program === "spartan" ? <SpartanProgram />
+          : program === "opt" ? <OptProgram />
+          : program === "library" ? <ExerciseLibrary />
+          : <AllExercises />}
       </main>
     </div>
   );

@@ -3,3 +3,5 @@ dist/
 .tools/
 dev-dist/
 .DS_Store
+.env
+.env.local
